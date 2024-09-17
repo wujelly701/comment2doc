@@ -1,4 +1,4 @@
-# Lua Documentation Generator
+# comment2doc
 
 自动为 Lua 项目生成清晰、结构化的 API 文档。
 
