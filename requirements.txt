@@ -1,0 +1,29 @@
+# 解析 YAML 配置文件
+PyYAML==6.0
+
+# 模板渲染
+Jinja2==3.1.2
+
+# Markdown 支持
+Markdown==3.4.3
+
+# 代码高亮
+Pygments==2.15.1
+
+# PDF 生成
+pdfkit==1.0.0
+
+# 字符编码检测
+chardet==5.1.0
+
+# 测试框架
+pytest==7.3.1
+pytest-mock==3.10.0
+
+# 类型提示（对于 Python 3.7+）
+typing-extensions==4.5.0
+
+# 开发工具（可选，但推荐用于维护代码质量）
+flake8==6.0.0
+black==23.3.0
+isort==5.12.0

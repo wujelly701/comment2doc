@@ -1,0 +1,62 @@
+# Lua Documentation Generator 配置文件示例
+
+# 项目名称
+project_name: My Awesome Lua Project
+
+# 要处理的文件扩展名
+file_extensions:
+  - .lua
+  - .luau
+
+# 文档内容控制
+include_params: true           # 包含参数文档
+include_returns: true          # 包含返回值文档
+include_usage: true            # 包含用法示例
+include_examples: true         # 包含代码示例
+include_see_also: true         # 包含相关引用
+include_local_functions: false # 包含局部函数
+include_tables: true           # 包含表文档
+include_type_index: true       # 生成类型索引
+
+# 输出格式控制
+syntax_highlight: true         # 启用语法高亮
+output_format: markdown        # 输出格式：markdown, html, 或 pdf
+
+# 版本控制
+use_git_version: false         # 使用 Git 版本作为文档版本
+version: "1.0.0"               # 手动指定版本（如果 use_git_version 为 false）
+
+# 多文件模块定义
+multi_file_modules:
+  - name: core
+    files:
+      - src/core/init.lua
+      - src/core/utils.lua
+  - name: graphics
+    files:
+      - src/graphics/renderer.lua
+      - src/graphics/shader.lua
+
+# 自定义模板路径（可选）
+# custom_template: path/to/custom/template.md.j2
+
+# 输出路径（可选，也可以通过命令行参数指定）
+# output_file: docs/api_reference.md
+
+# 文档覆盖率报告设置（可选）
+coverage_report:
+  enabled: true
+  output_file: docs/coverage_report.md
+
+# 高级设置
+parse_private: false           # 是否解析私有（以下划线开头）的函数和表
+max_line_length: 80            # 文档中代码示例的最大行长度
+
+# 国际化设置（未来功能）
+# language: en                 # 文档语言：en, zh, etc.
+
+# 插件设置（未来功能）
+# plugins:
+#   - name: custom_plugin
+#     path: path/to/custom_plugin.py
+#     enabled: true

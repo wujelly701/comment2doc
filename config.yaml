@@ -1,0 +1,13 @@
+project_name: Lua Documentation Generator
+file_extensions:
+  - .lua
+include_params: true
+include_returns: true
+include_usage: true
+include_examples: true
+include_see_also: true
+include_local_functions: false
+include_tables: true
+include_type_index: true
+syntax_highlight: true
+output_format: md

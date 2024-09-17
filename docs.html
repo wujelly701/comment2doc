@@ -1,0 +1,763 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lua Documentation Generator Documentation</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        body.dark-mode {
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+        }
+        .sidebar {
+            width: 280px;
+            background-color: #f7f7f8;
+            padding: 20px;
+            overflow-y: auto;
+            height: 100vh;
+            position: fixed;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            transition: background-color 0.3s;
+        }
+        .dark-mode .sidebar {
+            background-color: #2c2c2c;
+            box-shadow: 2px 0 5px rgba(255,255,255,0.1);
+        }
+        .main-content {
+            margin-left: 320px;
+            padding: 40px;
+            flex-grow: 1;
+            overflow-y: auto;
+            background-color: #fff;
+            transition: background-color 0.3s;
+        }
+        .dark-mode .main-content {
+            background-color: #333;
+        }
+        .search-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+        .clear-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+            cursor: pointer;
+            display: none;
+        }
+        .search-box {
+            width: 100%;
+            padding: 10px 30px 10px 35px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .dark-mode .search-box {
+            background-color: #444;
+            border-color: #555;
+            color: #f0f0f0;
+        }
+        .nav-item {
+            cursor: pointer;
+            padding: 8px 0;
+            color: #2c3e50;
+            transition: color 0.3s;
+        }
+        .dark-mode .nav-item {
+            color: #b0b0b0;
+        }
+        .nav-item:hover {
+            color: #3498db;
+        }
+        .nav-item > span {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-item > span::after {
+            content: '▼';
+            font-size: 0.8em;
+            transition: transform 0.3s;
+        }
+        .nav-item.collapsed > span::after {
+            transform: rotate(-90deg);
+        }
+        .sub-nav {
+            padding-left: 20px;
+            overflow: hidden;
+            max-height: 1000px;
+            transition: max-height 0.3s ease-out;
+        }
+        .nav-item.collapsed .sub-nav {
+            max-height: 0;
+        }
+        .sub-nav a {
+            color: #34495e;
+            text-decoration: none;
+            display: block;
+            padding: 5px 0;
+            transition: color 0.3s;
+        }
+        .dark-mode .sub-nav a {
+            color: #a0a0a0;
+        }
+        .sub-nav a:hover {
+            color: #3498db;
+        }
+        .content-section {
+            display: none;  /* 初始隐藏所有内容 */
+        }
+        #introduction {
+            display: block;  /* 显示简介 */
+        }
+        .dark-mode .content-section {
+            background-color: #2c2c2c;
+            box-shadow: 0 1px 3px rgba(255,255,255,0.12), 0 1px 2px rgba(255,255,255,0.24);
+        }
+        .document-title {
+            font-size: 2.5em;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+        .dark-mode .document-title {
+            color: #ecf0f1;
+            border-bottom-color: #2980b9;
+        }
+        h1, h2, h3, h4 {
+            color: #2c3e50;
+            transition: color 0.3s;
+        }
+        .dark-mode h1, .dark-mode h2, .dark-mode h3, .dark-mode h4 {
+            color: #e0e0e0;
+        }
+        pre {
+            background-color: #f8f8f8;
+            border: 1px solid #e1e1e8;
+            border-radius: 3px;
+            padding: 10px;
+            overflow-x: auto;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .dark-mode pre {
+            background-color: #2c2c2c;
+            border-color: #444;
+        }
+        code {
+            font-family: Consolas, Monaco, 'Andale Mono', monospace;
+            font-size: 0.9em;
+        }
+        .function, .table {
+            margin-bottom: 30px;
+            border-left: 3px solid #3498db;
+            padding-left: 15px;
+            transition: border-color 0.3s;
+        }
+        .dark-mode .function, .dark-mode .table {
+            border-left-color: #2980b9;
+        }
+        .highlight {
+            background-color: #fff3cd;
+            transition: background-color 0.5s ease;
+        }
+        .dark-mode .highlight {
+            background-color: #4a4a00;
+        }
+        #mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .dark-mode #mode-toggle {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h1>Lua Documentation Generator Documentation</h1>
+        <div class="search-container">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-input" class="search-box" placeholder="搜索...">
+            <span class="clear-icon" id="clear-search">✖</span>
+        </div>
+        <div id="nav-list">
+            
+            <div class="nav-item">
+                <span onclick="toggleSubNav(this.parentElement); loadContent('coreinitlua')">core\init.lua</span>
+                <div class="sub-nav">
+                    
+                    <a href="#core\init.lua.coreinitialize" onclick="loadContent('coreinitlua')">core.initialize</a>
+                    
+                    <a href="#core\init.lua.coreupdate" onclick="loadContent('coreinitlua')">core.update</a>
+                    
+                </div>
+            </div>
+            
+            <div class="nav-item">
+                <span onclick="toggleSubNav(this.parentElement); loadContent('coremathlua')">core\math.lua</span>
+                <div class="sub-nav">
+                    
+                    <a href="#core\math.lua.mathadd" onclick="loadContent('coremathlua')">math.add</a>
+                    
+                </div>
+            </div>
+            
+            <div class="nav-item">
+                <span onclick="toggleSubNav(this.parentElement); loadContent('coreutilslua')">core\utils.lua</span>
+                <div class="sub-nav">
+                    
+                    <a href="#core\utils.lua.utilsclamp" onclick="loadContent('coreutilslua')">utils.clamp</a>
+                    
+                    <a href="#core\utils.lua.utilslerp" onclick="loadContent('coreutilslua')">utils.lerp</a>
+                    
+                </div>
+            </div>
+            
+            <div class="nav-item">
+                <span onclick="toggleSubNav(this.parentElement); loadContent('graphicsrendererlua')">graphics\renderer.lua</span>
+                <div class="sub-nav">
+                    
+                    <a href="#graphics\renderer.lua.rendererinitialize" onclick="loadContent('graphicsrendererlua')">renderer.initialize</a>
+                    
+                    <a href="#graphics\renderer.lua.rendererdraw_sprite" onclick="loadContent('graphicsrendererlua')">renderer.draw_sprite</a>
+                    
+                </div>
+            </div>
+            
+            <div class="nav-item">
+                <span onclick="toggleSubNav(this.parentElement); loadContent('physicscollisionlua')">physics\collision.lua</span>
+                <div class="sub-nav">
+                    
+                    <a href="#physics\collision.lua.collisioncheck_rect_collision" onclick="loadContent('physicscollisionlua')">collision.check_rect_collision</a>
+                    
+                    <a href="#physics\collision.lua.collisionpoint_in_rect" onclick="loadContent('physicscollisionlua')">collision.point_in_rect</a>
+                    
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <div class="main-content">
+        <h1 class="document-title">Lua Documentation Generator Documentation</h1>
+        
+        <div id="introduction" class="content-section">
+            <h2>简介</h2>
+            <p>这里是Lua Documentation Generator项目的文档。请从左侧导航栏选择模块以查看详细信息。</p>
+        </div>
+
+        
+        <div id="coreinitlua" class="content-section">
+            <h2>Module: core\init.lua</h2>
+            
+                <p>这个模块提供了游戏引擎的核心功能</p>
+            
+
+            
+            <h3>Tables</h3>
+            
+            <div class="table" id="core\init.lua.simpletable">
+                <h4>simpleTable</h4>
+                (Local table)
+                <p><p>这是一个简单的表</p></p>
+                
+            </div>
+            
+            
+
+            <h3>Functions</h3>
+            
+            
+            <div class="function" id="core\init.lua.coreinitialize">
+                <h4>core.initialize</h4>
+                
+                <p><p>初始化游戏引擎</p></p>
+
+                
+                <h5>Parameters:</h5>
+                <ul>
+                
+                <li><strong>config</strong>: <a href="#table">table</a> - 引擎配置选项</li>
+                
+                </ul>
+                
+
+                
+                <h5>Returns:</h5>
+                <ul>
+                
+                <li><a href="#boolean">boolean</a> - 初始化是否成功</li>
+                
+                </ul>
+                
+
+                
+
+                
+
+                
+            </div>
+            
+            
+            
+            <div class="function" id="core\init.lua.coreupdate">
+                <h4>core.update</h4>
+                
+                <p><p>运行游戏主循环</p></p>
+
+                
+                <h5>Parameters:</h5>
+                <ul>
+                
+                <li><strong>delta_time</strong>: <a href="#number">number</a> - 上一帧到当前帧的时间间隔</li>
+                
+                </ul>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+            
+            
+        </div>
+        
+        <div id="coremathlua" class="content-section">
+            <h2>Module: core\math.lua</h2>
+            
+
+            
+
+            <h3>Functions</h3>
+            
+            
+            <div class="function" id="core\math.lua.mathadd">
+                <h4>math.add</h4>
+                
+                <p><p>Calculates the sum of two numbers</p></p>
+
+                
+                <h5>Parameters:</h5>
+                <ul>
+                
+                <li><strong>a</strong>: <a href="#number">number</a> - The first number</li>
+                
+                <li><strong>b</strong>: <a href="#number">number</a> - The second number</li>
+                
+                </ul>
+                
+
+                
+                <h5>Returns:</h5>
+                <ul>
+                
+                <li><a href="#number">number</a> - The sum of a and b</li>
+                
+                </ul>
+                
+
+                
+                <h5>Usage:</h5>
+                <div class="codehilite"><pre><span></span><span class="kd">local</span> <span class="n">result</span> <span class="o">=</span> <span class="n">math</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</pre></div>
+
+                
+
+                
+                <h5>Examples:</h5>
+                <div class="codehilite"><pre><span></span><span class="kd">local</span> <span class="n">sum</span> <span class="o">=</span> <span class="n">math</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sum</span><span class="p">)</span>  <span class="c1">-- Output: 30</span>
+</pre></div>
+
+                
+
+                
+                <h5>See also:</h5>
+                <ul>
+                
+                <li><a href="#mathsubtract">math.subtract</a></li>
+                
+                </ul>
+                
+            </div>
+            
+            
+        </div>
+        
+        <div id="coreutilslua" class="content-section">
+            <h2>Module: core\utils.lua</h2>
+            
+                <p>这个模块提供了一些通用的工具函数</p>
+            
+
+            
+
+            <h3>Functions</h3>
+            
+            
+            <div class="function" id="core\utils.lua.utilsclamp">
+                <h4>utils.clamp</h4>
+                
+                <p><p>将数值限制在指定范围内</p></p>
+
+                
+                <h5>Parameters:</h5>
+                <ul>
+                
+                <li><strong>value</strong>: <a href="#number">number</a> - 需要限制的值</li>
+                
+                <li><strong>min</strong>: <a href="#number">number</a> - 最小值</li>
+                
+                <li><strong>max</strong>: <a href="#number">number</a> - 最大值</li>
+                
+                </ul>
+                
+
+                
+                <h5>Returns:</h5>
+                <ul>
+                
+                <li><a href="#number">number</a> - 限制后的值</li>
+                
+                </ul>
+                
+
+                
+
+                
+
+                
+            </div>
+            
+            
+            
+            <div class="function" id="core\utils.lua.utilslerp">
+                <h4>utils.lerp</h4>
+                
+                <p><p>线性插值</p></p>
+
+                
+                <h5>Parameters:</h5>
+                <ul>
+                
+                <li><strong>a</strong>: <a href="#number">number</a> - 起始值</li>
+                
+                <li><strong>b</strong>: <a href="#number">number</a> - 结束值</li>
+                
+                <li><strong>t</strong>: <a href="#number">number</a> - 插值因子 (0-1)</li>
+                
+                </ul>
+                
+
+                
+                <h5>Returns:</h5>
+                <ul>
+                
+                <li><a href="#number">number</a> - 插值结果</li>
+                
+                </ul>
+                
+
+                
+
+                
+
+                
+            </div>
+            
+            
+        </div>
+        
+        <div id="graphicsrendererlua" class="content-section">
+            <h2>Module: graphics\renderer.lua</h2>
+            
+                <p>这个模块负责游戏的图形渲染</p>
+            
+
+            
+
+            <h3>Functions</h3>
+            
+            
+            <div class="function" id="graphics\renderer.lua.rendererinitialize">
+                <h4>renderer.initialize</h4>
+                
+                <p><p>初始化渲染器</p></p>
+
+                
+                <h5>Parameters:</h5>
+                <ul>
+                
+                <li><strong>options</strong>: <a href="#渲染选项">渲染选项</a> - 渲染器的配置选项</li>
+                
+                </ul>
+                
+
+                
+                <h5>Returns:</h5>
+                <ul>
+                
+                <li><a href="#boolean">boolean</a> - 初始化是否成功</li>
+                
+                </ul>
+                
+
+                
+
+                
+
+                
+            </div>
+            
+            
+            
+            <div class="function" id="graphics\renderer.lua.rendererdraw_sprite">
+                <h4>renderer.draw_sprite</h4>
+                
+                <p><p>绘制精灵</p></p>
+
+                
+                <h5>Parameters:</h5>
+                <ul>
+                
+                <li><strong>sprite_id</strong>: <a href="#string">string</a> - 精灵的唯一标识符</li>
+                
+                <li><strong>x</strong>: <a href="#number">number</a> - 精灵的 X 坐标</li>
+                
+                <li><strong>y</strong>: <a href="#number">number</a> - 精灵的 Y 坐标</li>
+                
+                <li><strong>rotation</strong>: <a href="#number">number</a> - 精灵的旋转角度（弧度）</li>
+                
+                </ul>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+            
+            
+        </div>
+        
+        <div id="physicscollisionlua" class="content-section">
+            <h2>Module: physics\collision.lua</h2>
+            
+                <p>这个模块提供了基本的碰撞检测功能</p>
+            
+
+            
+
+            <h3>Functions</h3>
+            
+            
+            <div class="function" id="physics\collision.lua.collisioncheck_rect_collision">
+                <h4>collision.check_rect_collision</h4>
+                
+                <p><p>检测两个矩形是否相交</p></p>
+
+                
+                <h5>Parameters:</h5>
+                <ul>
+                
+                <li><strong>rect1</strong>: <a href="#矩形">矩形</a> - 第一个矩形</li>
+                
+                <li><strong>rect2</strong>: <a href="#矩形">矩形</a> - 第二个矩形</li>
+                
+                </ul>
+                
+
+                
+                <h5>Returns:</h5>
+                <ul>
+                
+                <li><a href="#boolean">boolean</a> - 是否相交</li>
+                
+                </ul>
+                
+
+                
+
+                
+
+                
+            </div>
+            
+            
+            
+            <div class="function" id="physics\collision.lua.collisionpoint_in_rect">
+                <h4>collision.point_in_rect</h4>
+                
+                <p><p>检测点是否在矩形内</p></p>
+
+                
+                <h5>Parameters:</h5>
+                <ul>
+                
+                <li><strong>x</strong>: <a href="#number">number</a> - 点的 X 坐标</li>
+                
+                <li><strong>y</strong>: <a href="#number">number</a> - 点的 Y 坐标</li>
+                
+                <li><strong>rect</strong>: <a href="#矩形">矩形</a> - 要检测的矩形</li>
+                
+                </ul>
+                
+
+                
+                <h5>Returns:</h5>
+                <ul>
+                
+                <li><a href="#boolean">boolean</a> - 点是否在矩形内</li>
+                
+                </ul>
+                
+
+                
+
+                
+
+                
+            </div>
+            
+            
+        </div>
+        
+    </div>
+
+    <button id="mode-toggle">切换夜间模式</button>
+
+    <script>
+        const searchInput = document.getElementById('search-input');
+        const navList = document.getElementById('nav-list');
+        const modeToggle = document.getElementById('mode-toggle');
+        const body = document.body;
+        const clearSearch = document.getElementById('clear-search');
+
+        function toggleSubNav(element) {
+            element.classList.toggle('collapsed');
+        }
+
+        function loadContent(moduleId) {
+            // 隐藏所有内容
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.style.display = 'none';
+            });
+
+            // 显示选中的模块内容
+            const selectedModule = document.getElementById(moduleId);
+            if (selectedModule) {
+                selectedModule.style.display = 'block';
+            }
+        }
+
+        function performSearch() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const navItems = navList.getElementsByClassName('nav-item');
+
+            clearSearch.style.display = searchTerm ? 'block' : 'none';
+
+            for (let item of navItems) {
+                const itemText = item.textContent.toLowerCase();
+                const subNav = item.querySelector('.sub-nav');
+                const subItems = subNav.getElementsByTagName('a');
+
+                let showItem = itemText.includes(searchTerm);
+
+                for (let subItem of subItems) {
+                    if (subItem.textContent.toLowerCase().includes(searchTerm)) {
+                        showItem = true;
+                        subItem.style.display = 'block';
+                    } else {
+                        subItem.style.display = 'none';
+                    }
+                }
+
+                item.style.display = showItem ? 'block' : 'none';
+                if (showItem) {
+                    item.classList.remove('collapsed');
+                }
+            }
+        }
+
+        searchInput.addEventListener('input', performSearch);
+
+        clearSearch.addEventListener('click', function() {
+            searchInput.value = '';
+            performSearch();
+        });
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    highlightElement(targetElement);
+                }
+            });
+        });
+
+        function highlightElement(element) {
+            element.classList.add('highlight');
+            setTimeout(() => {
+                element.classList.remove('highlight');
+            }, 2000);
+        }
+
+        modeToggle.addEventListener('click', function() {
+            body.classList.toggle('dark-mode');
+            if (body.classList.contains('dark-mode')) {
+                modeToggle.textContent = '切换日间模式';
+            } else {
+                modeToggle.textContent = '切换夜间模式';
+            }
+        });
+
+        // 初始化：隐藏所有模块内容，只显示简介
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.style.display = 'none';
+        });
+        document.getElementById('introduction').style.display = 'block';
+    </script>
+</body>
+</html>
+    

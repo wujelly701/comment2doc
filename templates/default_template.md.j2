@@ -1,0 +1,104 @@
+# {{ project_name }} Documentation
+
+Version: {{ version }}
+
+{% for module_name, module_info in modules.items() %}
+## Module: {{ module_name }}
+
+{{ module_info.doc }}
+
+{% if config.include_tables and module_info.tables %}
+### Tables
+
+{% for table in module_info.tables %}
+#### {{ table.name }}
+
+{% if table.is_local %}(Local table){% endif %}
+
+{{ table.description }}
+
+{% if table.fields %}
+Fields:
+{% for field in table.fields %}
+- **{{ field.name }}**: {% if field.type %}[{{ field.type }}](#{{ create_anchor(field.type.name) }}){% endif %} - {{ field.description }}
+{% endfor %}
+{% endif %}
+
+{% endfor %}
+{% endif %}
+
+### Functions
+
+{% for func in module_info.functions %}
+{% if config.include_local_functions or not func.is_local %}
+#### {{ func.name }}({% for param in func.params %}{{ param.name }}{% if param.type %}: [{{ param.type }}](#{{ create_anchor(param.type.name) }}){% endif %}{% if not loop.last %}, {% endif %}{% endfor %})
+
+{% if func.is_local %}(Local function){% endif %}
+
+{{ func.description }}
+
+{% if config.include_params and func.params %}
+Parameters:
+{% for param in func.params %}
+- **{{ param.name }}**: {% if param.type %}[{{ param.type }}](#{{ create_anchor(param.type.name) }}){% endif %} - {{ param.description }}
+{% endfor %}
+{% endif %}
+
+{% if config.include_returns and func.returns %}
+Returns:
+{% for ret in func.returns %}
+- {% if ret.type %}[{{ ret.type }}](#{{ create_anchor(ret.type.name) }}){% endif %} - {{ ret.description }}
+{% endfor %}
+{% endif %}
+
+{% if config.include_usage and func.usage %}
+Usage:
+```lua
+{{ func.usage }}
+```
+{% endif %}
+
+{% if config.include_examples and func.examples %}
+Examples:
+```lua
+{{ func.examples }}
+```
+{% endif %}
+
+{% if config.include_see_also and func.see %}
+See also:
+{% for see in func.see %}
+- [{{ see }}](#{{ create_anchor(see) }})
+{% endfor %}
+{% endif %}
+
+{% endif %}
+{% endfor %}
+
+{% endfor %}
+
+{% if config.include_type_index %}
+## Type Index
+
+{% for type_name, occurrences in type_index.items() %}
+### {{ type_name }}
+
+Used in:
+{% for occurrence in occurrences %}
+- [{{ occurrence.module }}](#{{ create_anchor(occurrence.module) }}): {{ occurrence.context }}
+{% endfor %}
+
+{% endfor %}
+{% endif %}
+
+## Function Index
+
+{% for func_name, func_info in function_index.items() %}
+- [{{ func_name }}](#{{ create_anchor(func_info.module + '.' + func_info.name) }})
+{% endfor %}
+
+## Table Index
+
+{% for table_name, table_info in table_index.items() %}
+- [{{ table_name }}](#{{ create_anchor(table_info.module + '.' + table_info.name) }})
+{% endfor %}

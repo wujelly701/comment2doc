@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ project_name }} Documentation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2, h3, h4 {
+            margin-top: 30px;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .function, .table {
+            margin-bottom: 30px;
+            border-left: 3px solid #007bff;
+            padding-left: 15px;
+        }
+        .local {
+            font-style: italic;
+            color: #666;
+        }
+        {{ highlight_code('', formatter_options={'style': 'default', 'cssclass': 'codehilite'}) }}
+    </style>
+</head>
+<body>
+    <h1>{{ project_name }} Documentation</h1>
+    <p>Version: {{ version }}</p>
+
+    {% for module_name, module_info in modules.items() %}
+    <h2 id="{{ create_anchor(module_name) }}">Module: {{ module_name }}</h2>
+    <p>{{ module_info.doc }}</p>
+
+    {% if config.include_tables and module_info.tables %}
+    <h3>Tables</h3>
+    {% for table in module_info.tables %}
+    <div class="table">
+        <h4 id="{{ create_anchor(module_name + '.' + table.name) }}">{{ table.name }}</h4>
+        {% if table.is_local %}<p class="local">(Local table)</p>{% endif %}
+        <p>{{ table.description }}</p>
+        {% if table.fields %}
+        <h5>Fields:</h5>
+        <ul>
+        {% for field in table.fields %}
+        <li><strong>{{ field.name }}</strong>: {% if field.type %}<a href="#{{ create_anchor(field.type.name) }}">{{ field.type }}</a>{% endif %} - {{ field.description }}</li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <h3>Functions</h3>
+    {% for func in module_info.functions %}
+    {% if config.include_local_functions or not func.is_local %}
+    <div class="function">
+        <h4 id="{{ create_anchor(module_name + '.' + func.name) }}">{{ func.name }}({% for param in func.params %}{{ param.name }}{% if param.type %}: <a href="#{{ create_anchor(param.type.name) }}">{{ param.type }}</a>{% endif %}{% if not loop.last %}, {% endif %}{% endfor %})</h4>
+        {% if func.is_local %}<p class="local">(Local function)</p>{% endif %}
+        <p>{{ func.description }}</p>
+
+        {% if config.include_params and func.params %}
+        <h5>Parameters:</h5>
+        <ul>
+        {% for param in func.params %}
+        <li><strong>{{ param.name }}</strong>: {% if param.type %}<a href="#{{ create_anchor(param.type.name) }}">{{ param.type }}</a>{% endif %} - {{ param.description }}</li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% if config.include_returns and func.returns %}
+        <h5>Returns:</h5>
+        <ul>
+        {% for ret in func.returns %}
+        <li>{% if ret.type %}<a href="#{{ create_anchor(ret.type.name) }}">{{ ret.type }}</a>{% endif %} - {{ ret.description }}</li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% if config.include_usage and func.usage %}
+        <h5>Usage:</h5>
+        {{ highlight_code(func.usage) | safe }}
+        {% endif %}
+
+        {% if config.include_examples and func.examples %}
+        <h5>Examples:</h5>
+        {{ highlight_code(func.examples) | safe }}
+        {% endif %}
+
+        {% if config.include_see_also and func.see %}
+        <h5>See also:</h5>
+        <ul>
+        {% for see in func.see %}
+        <li><a href="#{{ create_anchor(see) }}">{{ see }}</a></li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endfor %}
+
+    {% if config.include_type_index %}
+    <h2>Type Index</h2>
+    {% for type_name, occurrences in type_index.items() %}
+    <h3 id="{{ create_anchor(type_name) }}">{{ type_name }}</h3>
+    <p>Used in:</p>
+    <ul>
+    {% for occurrence in occurrences %}
+    <li><a href="#{{ create_anchor(occurrence.module) }}">{{ occurrence.module }}</a>: {{ occurrence.context }}</li>
+    {% endfor %}
+    </ul>
+    {% endfor %}
+    {% endif %}
+
+    <h2>Function Index</h2>
+    <ul>
+    {% for func_name, func_info in function_index.items() %}
+    <li><a href="#{{ create_anchor(func_info.module + '.' + func_info.name) }}">{{ func_name }}</a></li>
+    {% endfor %}
+    </ul>
+
+    <h2>Table Index</h2>
+    <ul>
+    {% for table_name, table_info in table_index.items() %}
+    <li><a href="#{{ create_anchor(table_info.module + '.' + table_info.name) }}">{{ table_name }}</a></li>
+    {% endfor %}
+    </ul>
+</body>
+</html>
