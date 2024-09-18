@@ -233,9 +233,3 @@ end
 本项目采用 MIT 许可证。详情请见 [LICENSE](LICENSE) 文件。
 
 ---
-
-📺 [观看视频教程](https://youtu.be/example)
-
-💬 加入我们的 [Discord 社区](https://discord.gg/example)
-
-🌟 如果这个项目对您有帮助，请给我们一个星标！
