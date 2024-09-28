@@ -58,10 +58,12 @@
 
 3. 运行文档生成器：
    ```bash
-   python src/main.py /path/to/your/lua/project -o docs.md
+   python src/main.py /path/to/your/lua/project -o docs.html
    ```
 
-4. 查看生成的 `docs.md` 文件。
+4. 查看生成的 `docs.html` 文件。
+   ![image](https://github.com/user-attachments/assets/41853da1-6e06-47b6-9aaf-c154e1fb081d)
+
 
 [查看生成文档示例](https://example.com/sample-docs)
 
