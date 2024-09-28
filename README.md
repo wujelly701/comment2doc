@@ -65,7 +65,7 @@
    ![image](https://github.com/user-attachments/assets/41853da1-6e06-47b6-9aaf-c154e1fb081d)
 
 
-[查看生成文档示例](https://example.com/sample-docs)
+[查看生成文档示例](https://github.com/wujelly701/comment2doc/blob/master/docs.html)
 
 ## 项目结构
 
